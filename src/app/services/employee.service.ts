@@ -3,14 +3,24 @@ import { HttpClient } from '@angular/common/http'
 import { Observable } from 'rxjs';
 import { Employee } from '../model/employee';
 
+import {environment} from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeeService {
-
-  private apiUrl = "http://localhost:8080/api/v1/employees";
+  private _selectedEmployee: Employee;
+  private apiUrl = `${environment.api}/employees`;
 
   constructor(private httpClient: HttpClient) { }
+
+  get selectedEmployee(): Employee {
+    return this._selectedEmployee;
+  }
+
+  set selectedEmployee(value: Employee) {
+    this._selectedEmployee = value;
+  }
 
   getEmployees(): Observable<Employee[]> {
     return this.httpClient.get<Employee[]>(this.apiUrl);

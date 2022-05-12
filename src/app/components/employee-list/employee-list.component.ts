@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import { Employee } from 'src/app/model/employee';
 import { EmployeeService } from 'src/app/services/employee.service';
+import {Observable} from 'rxjs';
+import {tap, map} from 'rxjs/operators';
+import {EmployeeType} from '../../common/constants';
 
 @Component({
   selector: 'app-employee-list',
@@ -9,12 +12,14 @@ import { EmployeeService } from 'src/app/services/employee.service';
   styleUrls: ['./employee-list.component.css']
 })
 export class EmployeeListComponent implements OnInit {
-
+  $employees: Observable<Employee[]>;
   employees: Employee[];
+
+  employeeType: EmployeeType;
 
   constructor(private employeeService: EmployeeService, private router: Router) { }
 
-  ngOnInit(): void { 
+  ngOnInit(): void {
     /*this.employees = [
       {
         "id": 1,
@@ -34,14 +39,18 @@ export class EmployeeListComponent implements OnInit {
   }
 
   private getEmployees() {
-    this.employeeService.getEmployees().subscribe(employees => {
-      this.employees = employees;
-      //this.employees.sort((e1, e2) => e1.firstName.localeCompare(e2.firstName));
+    this.employeeService.getEmployees()
+      .pipe(map(result => {
+        return result.map(emp => ({...emp, isOdd: true}))
+      })).subscribe(result => {
+        console.log("subscr")
+        this.employees = result
     });
   }
 
-  updateEmployee(id: number) {
-    this.router.navigate(["update-employee", id]);
+  updateEmployee(employee: Employee) {
+    this.employeeService.selectedEmployee = employee;
+    this.router.navigate(["update-employee", employee.id]);
   }
 
   deleteEmployee(id: number) {
@@ -52,4 +61,13 @@ export class EmployeeListComponent implements OnInit {
       })
   }
 
+  addEmployee() {
+    // this.employees.push({
+    //   id: 5,
+    //   email: "new_user@user.bg",
+    //   firstName: "Alex",
+    //   lastName: "Mitev"
+    // })
+    this.employees[2] = {...this.employees[2], lastName: 'Mitev'}
+  }
 }
