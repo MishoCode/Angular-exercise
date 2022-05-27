@@ -10,7 +10,10 @@ import { EmployeeService } from 'src/app/services/employee.service';
 })
 export class EmployeeListComponent implements OnInit {
 
-  employees: Employee[];
+  employees: any;
+  totalElements: number;
+  size: number;
+  page: number = 0;
 
   constructor(private employeeService: EmployeeService, private router: Router) { }
 
@@ -34,9 +37,10 @@ export class EmployeeListComponent implements OnInit {
   }
 
   private getEmployees() {
-    this.employeeService.getEmployees().subscribe(employees => {
-      this.employees = employees;
-      //this.employees.sort((e1, e2) => e1.firstName.localeCompare(e2.firstName));
+    this.employeeService.getEmployees(this.page).subscribe((response: any) => {
+      this.employees = response.content;
+      this.size = response.size;
+      this.totalElements = response.totalElements;
     });
   }
 
@@ -51,5 +55,10 @@ export class EmployeeListComponent implements OnInit {
         this.getEmployees();
       })
   }
+
+  pageChangeEvent(event: number) {
+    this.page = event;
+    this.getEmployees();
+}
 
 }
